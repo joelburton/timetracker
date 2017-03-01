@@ -1,5 +1,17 @@
+===================
 Time Tracker Models
 ===================
+
+The time tracker application uses "persistent Python objects". These are
+relatively normal Python classes that we can create and update using the
+standard Python dictionary syntax. However, since they descend from
+the `persistent` library, they can transparently be saved in the ZODB
+object database.
+
+Models
+======
+
+For now, let's look at the object types themselves:
 
     >>> from timetracker.models import Category, Task
 
@@ -108,6 +120,16 @@ We can also get a total number of minute of tasks:
     >>> home['bedroom'].total_mins()
     0
 
+This normally sums up all tasks *anywhere* below that category;
+to get the sum of tasks only directly inside that category, pass a
+false value for `recurse`:
+
+    >>> home.total_mins(recurse=False)
+    0
+
+    >>> home['kitchen'].total_mins(recurse=False)
+    20
+
 Deleting Items
 --------------
 
@@ -143,4 +165,71 @@ You can provide a True value for the recurse option to delete these:
     >>> kitchen.delete(recurse=True)
 
     >>> "kitchen" in home
+    False
+
+Saving in a Database
+====================
+
+Let's ensure we can store these objects in the ZODB.
+
+    >>> import ZODB
+
+We'll make a connection to an in-memory database:
+
+    >>> conn = ZODB.connection(None)
+
+The "root" of our database is the top object. This is neither a
+category nor a task, but just a dictionary-like thing to hold the
+top-level categories:
+
+    >>> db = ZODB.DB(None)
+    >>> conn = db.open()
+    >>> root = conn.root()
+
+Let's add a category to it:
+
+    >>> root['joel'] = joel = Category('joel', "Joel's Tasks")
+    >>> joel.add_task("Play with ZODB")
+    <Task play-with-zodb "Play with ZODB">
+
+Transactions
+------------
+
+The ZODB uses transactions, so while we can see this, it isn't
+saved yet for other people:
+
+    >>> conn2 = db.open()
+    >>> root2 = conn2.root()
+
+    >>> 'joel' in root2
+    False
+
+    >>> conn2.close()
+
+If we commit the transaction, then it will be visible to others:
+
+    >>> import transaction
+    >>> transaction.commit()
+
+    >>> conn2 = db.open()
+    >>> root2 = conn2.root()
+
+    >>> 'joel' in root2
+    True
+
+    >>> conn2.close()
+
+Aborting
+--------
+
+Of course, we can also abort a transaction:
+
+    >>> joel.add_task("Foo")
+    <Task foo "Foo">
+
+    >>> "foo" in joel
+    True
+
+    >>> transaction.abort()
+    >>> "foo" in joel
     False
