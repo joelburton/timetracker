@@ -2,6 +2,8 @@
 Time Tracker Models
 ===================
 
+.. highlight:: python
+
 The time tracker application uses "persistent Python objects". These are
 relatively normal Python classes that we can create and update using the
 standard Python dictionary syntax. However, since they descend from
@@ -11,17 +13,14 @@ object database.
 Models
 ======
 
-For now, let's look at the object types themselves
-
-.. code-block:: python
+For now, let's look at the object types themselves::
 
     >>> from timetracker.models import Category, Task
 
-Let's make a category for our home tasks:
-
-.. code-block:: python
+Let's make a category for our home tasks::
 
     >>> home = Category("home", "Home")
+    >>> import foo
     >>> home.id
     'home'
     >>> home.title
