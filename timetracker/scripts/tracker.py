@@ -16,12 +16,9 @@ import transaction
 from timetracker.models import Category, Task
 from timetracker.slugify import slugify_unique
 
+INTRO = """
 
-class TrackerCmd(cmd.Cmd):
-    """REPL for time tracker administration."""
-
-    prompt = "tracker> "
-    intro = """Time Tracker
+Time Tracker
 
 You can use this to view, add, and delete categories and tasks.
 
@@ -29,7 +26,15 @@ You can use this to view, add, and delete categories and tasks.
 have a "recursive" form that acts recursively (for example,
 `cats work` shows categories directly in the `work` category,
 while `rcats work` shows all categories anywhere below `work`.
-    """
+
+""".strip()
+
+
+class TrackerCmd(cmd.Cmd):
+    """REPL for time tracker administration."""
+
+    prompt = "\ntracker> "
+    intro = INTRO
 
     def __init__(self, *args, **kwargs):
         db_filename = kwargs.pop("database", "data.fs")
@@ -205,7 +210,6 @@ while `rcats work` shows all categories anywhere below `work`.
         """After every command. commit database."""
 
         transaction.commit()
-        print()
         return stop
 
     # noinspection PyPep8Naming,PyMethodMayBeStatic,PyUnusedLocal
