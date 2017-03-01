@@ -176,14 +176,13 @@ Let's ensure we can store these objects in the ZODB.
 
 We'll make a connection to an in-memory database:
 
-    >>> conn = ZODB.connection(None)
+    >>> db = ZODB.DB(None)
+    >>> conn = db.open()
 
 The "root" of our database is the top object. This is neither a
 category nor a task, but just a dictionary-like thing to hold the
 top-level categories:
 
-    >>> db = ZODB.DB(None)
-    >>> conn = db.open()
     >>> root = conn.root()
 
 Let's add a category to it:
@@ -196,7 +195,8 @@ Transactions
 ------------
 
 The ZODB uses transactions, so while we can see this, it isn't
-saved yet for other people:
+saved yet for other people. We can test this by opening a second,
+independent connection to the same database:
 
     >>> conn2 = db.open()
     >>> root2 = conn2.root()
@@ -210,6 +210,9 @@ If we commit the transaction, then it will be visible to others:
 
     >>> import transaction
     >>> transaction.commit()
+
+We can prove this by opening a fresh connection to the db and
+seeing that the new category is there:
 
     >>> conn2 = db.open()
     >>> root2 = conn2.root()
