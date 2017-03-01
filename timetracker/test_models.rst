@@ -22,7 +22,6 @@ Let's make a category for our home tasks:
 .. code-block:: python
 
     >>> home = Category("home", "Home")
-    >>> import foo
     >>> home.id
     'home'
     >>> home.title
