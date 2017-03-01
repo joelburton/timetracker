@@ -11,7 +11,7 @@ object database.
 Models
 ======
 
-For now, let's look at the object types themselves:
+For now, let's look at the object types themselves::
 
     >>> from timetracker.models import Category, Task
 
